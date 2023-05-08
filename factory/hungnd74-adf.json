@@ -1,0 +1,9 @@
+{
+	"name": "hungnd74-adf",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "66f12739-8950-419a-8849-f96c9cf880b4",
+		"tenantId": "f958e84a-92b8-439f-a62d-4f45996b6d07"
+	}
+}

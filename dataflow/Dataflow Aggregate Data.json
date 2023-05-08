@@ -1,0 +1,116 @@
+{
+	"name": "Dataflow Aggregate Data",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "transact_payroll",
+						"type": "DatasetReference"
+					},
+					"name": "SQLDBPayroll"
+				},
+				{
+					"dataset": {
+						"referenceName": "gen2_historical_payroll",
+						"type": "DatasetReference"
+					},
+					"name": "historicalPayroll"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "synapse_Payroll_Summary",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "unionPayroll"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "DeriveTotalPaid"
+				},
+				{
+					"name": "gbAgencyNFiscalYear"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     FiscalYear as integer",
+				"}",
+				"source(output(",
+				"          FiscalYear as integer,",
+				"          PayrollNumber as integer,",
+				"          AgencyID as string,",
+				"          AgencyName as string,",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string,",
+				"          AgencyStartDate as date,",
+				"          WorkLocationBorough as string,",
+				"          TitleCode as string,",
+				"          TitleDescription as string,",
+				"          LeaveStatusasofJune30 as string,",
+				"          BaseSalary as double,",
+				"          PayBasis as string,",
+				"          RegularHours as double,",
+				"          RegularGrossPaid as double,",
+				"          OTHours as double,",
+				"          TotalOTPaid as double,",
+				"          TotalOtherPay as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SQLDBPayroll",
+				"source(output(",
+				"          FiscalYear as integer,",
+				"          PayrollNumber as integer,",
+				"          AgencyCode as string,",
+				"          AgencyName as string,",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string,",
+				"          AgencyStartDate as date,",
+				"          WorkLocationBorough as string,",
+				"          TitleCode as string,",
+				"          TitleDescription as string,",
+				"          LeaveStatusasofJune30 as string,",
+				"          BaseSalary as float,",
+				"          PayBasis as string,",
+				"          RegularHours as float,",
+				"          RegularGrossPaid as float,",
+				"          OTHours as float,",
+				"          TotalOTPaid as float,",
+				"          TotalOtherPay as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> historicalPayroll",
+				"SQLDBPayroll, historicalPayroll union(byName: true)~> unionPayroll",
+				"unionPayroll filter(toInteger(FiscalYear) >= $FiscalYear) ~> filter1",
+				"filter1 derive(TotalPaid = (RegularGrossPaid) + (TotalOTPaid) + (TotalOtherPay)) ~> DeriveTotalPaid",
+				"DeriveTotalPaid aggregate(groupBy(AgencyName,",
+				"          FiscalYear),",
+				"     TotalPaid = sum(TotalPaid)) ~> gbAgencyNFiscalYear",
+				"gbAgencyNFiscalYear sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['payroll_summary.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

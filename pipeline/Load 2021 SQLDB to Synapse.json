@@ -1,0 +1,34 @@
+{
+	"name": "Load 2021 SQLDB to Synapse",
+	"properties": {
+		"activities": [
+			{
+				"name": "Payroll SQLDB to Synapse",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Payroll SQLDB to Synapse",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-05-08T15:12:43Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

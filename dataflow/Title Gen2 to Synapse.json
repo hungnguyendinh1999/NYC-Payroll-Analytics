@@ -1,0 +1,49 @@
+{
+	"name": "Title Gen2 to Synapse",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "gen2_titlemaster",
+						"type": "DatasetReference"
+					},
+					"name": "gen2title"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "synapse_NYC_Payroll_TITLE_MD",
+						"type": "DatasetReference"
+					},
+					"name": "synapse"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          TitleCode as string,",
+				"          TitleDescription as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> gen2title",
+				"gen2title sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['payroll_title_md.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          TitleCode,",
+				"          TitleDescription",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> synapse"
+			]
+		}
+	}
+}

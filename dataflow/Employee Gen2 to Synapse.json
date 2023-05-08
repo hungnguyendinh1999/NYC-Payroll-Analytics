@@ -1,0 +1,46 @@
+{
+	"name": "Employee Gen2 to Synapse",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "gen2_empmaster",
+						"type": "DatasetReference"
+					},
+					"name": "gen2emp"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "synapse_NYC_Payroll_EMP_MD",
+						"type": "DatasetReference"
+					},
+					"name": "synapse"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          LastName as string,",
+				"          FirstName as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> gen2emp",
+				"gen2emp sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['payroll_emp_md.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> synapse"
+			]
+		}
+	}
+}

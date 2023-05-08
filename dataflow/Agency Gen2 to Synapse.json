@@ -1,0 +1,53 @@
+{
+	"name": "Agency Gen2 to Synapse",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "gen2_agencymaster",
+						"type": "DatasetReference"
+					},
+					"name": "gen2agency"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "synapse_NYC_Payroll_AGENCY_MD",
+						"type": "DatasetReference"
+					},
+					"name": "synapse"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          AgencyID as string,",
+				"          AgencyName as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> gen2agency",
+				"gen2agency sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string",
+				"     ),",
+				"     partitionFileNames:['payroll_agency_md.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          AgencyID,",
+				"          AgencyName",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> synapse"
+			]
+		}
+	}
+}

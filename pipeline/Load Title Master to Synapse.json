@@ -1,0 +1,34 @@
+{
+	"name": "Load Title Master to Synapse",
+	"properties": {
+		"activities": [
+			{
+				"name": "Title Gen2 to Synapse",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Title Gen2 to Synapse",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-05-08T15:19:07Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
